@@ -1,4 +1,5 @@
 #define SDL_MAIN_USE_CALLBACKS 1
+#include <SDL3/SDL_main.h>
 #include "Global.h"
 
 bool checkCompileErrors(GLuint shader, char *type, bool isProgram)
@@ -27,16 +28,17 @@ bool checkCompileErrors(GLuint shader, char *type, bool isProgram)
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   *appstate = NULL;
 
+  SDL_Log("Preparing to init!\r\n");
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     SDL_Log("SDL Init: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
   struct GlobalState *state = SDL_malloc(sizeof(struct GlobalState));
 
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_ES,
-			SDL_GL_CONTEXT_PROFILE_ES);   
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_ES,
+                      SDL_GL_CONTEXT_PROFILE_ES);   
 
   state->win = SDL_CreateWindow(",,", VW * 2, VH, SDL_WINDOW_OPENGL);
   if (state->win == NULL) {
@@ -44,13 +46,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     return SDL_APP_FAILURE;
   }
   state->ctx = SDL_GL_CreateContext(state->win);
+
+  glewInit();
   
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
-  //glEnable(GL_CULL_FACE);
+  glEnable(GL_CULL_FACE);
 
   glGenBuffers(1, &state->VBO);
   glBindBuffer(GL_ARRAY_BUFFER, state->VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertData), vertData, GL_STATIC_DRAW);
 
   size_t vertsz, fragsz;
   char *vertsrc = SDL_LoadFile("shaders/basic.vert.glsl", &vertsz);
@@ -85,9 +90,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   glUseProgram(state->shader);
 
   GLint aPosLoc = glGetAttribLocation(state->shader, "aPos");
-  glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, 0, vertData);
+  glVertexAttribPointer(aPosLoc, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
   glEnableVertexAttribArray(aPosLoc);
   state->mvpPos = glGetUniformLocation(state->shader, "mvp");
+  state->dA = 0.f;
+  state->iA = 0;
+  SDL_GetCurrentTime(&state->pframe);
 
   *appstate = state;
   return SDL_APP_CONTINUE;

@@ -5,7 +5,10 @@ precision mediump float;
 
 attribute vec3 aPos;
 uniform mat4 mvp;
+varying float depth;
 
 void main() {
-  gl_Position = mvp * vec4(aPos, 1.0);
+  vec4 pos4 = mvp * vec4(aPos, 1.0);
+  depth = pos4.z;
+  gl_Position = pos4;
 }
