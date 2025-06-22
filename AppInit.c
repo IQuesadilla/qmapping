@@ -97,6 +97,27 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   state->iA = 0;
   SDL_GetCurrentTime(&state->pframe);
 
+  /*
+  glGenFramebuffers(1, &state->FB);
+  glBindFramebuffer(GL_FRAMEBUFFER, state->FB);
+
+  glGenRenderbuffers(1, &state->TFB);
+  glBindRenderbuffer(GL_RENDERBUFFER, state->TFB);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA4, VW, VH);
+
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, state->TFB);
+  */
+
+  /*
+  glGenTextures(1, &state->TFB);
+  glBindTexture(GL_TEXTURE_2D, state->TFB);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, );
+  */
+  //char pixels[VW * VH * 4 * 8];
+  //glTexImage2D
+
+  SDL_Log("Num texs: %d", GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+
   *appstate = state;
   return SDL_APP_CONTINUE;
 }
